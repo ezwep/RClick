@@ -44,7 +44,11 @@ extension OpenWithApp {
         guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: identifier) else {
             return nil
         }
-        self.init(appURL: url)
+        // Use the bundle identifier as a stable id so the default apps get the
+        // same id in both the main app and the Finder extension. A random UUID
+        // would differ per process, so the rid sent on "Open With" click would
+        // never match getAppItem(rid:) in the host app.
+        self.init(id: identifier, appURL: url)
     }
 
     static let vscode = OpenWithApp(bundleIdentifier: "com.microsoft.VSCode")

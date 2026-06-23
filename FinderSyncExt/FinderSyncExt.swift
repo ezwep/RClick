@@ -19,7 +19,10 @@ private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "RClick",
 @MainActor
 class FinderSyncExt: FIFinderSync {
     var myFolderURL = URL(fileURLWithPath: "/Users/")
-    var isHostAppOpen = false
+    // Default to true: the menu must render without depending on the one-shot
+    // "running" handshake, which can be missed across the sandbox boundary.
+    // The host app sets this back to false via the "quit" message on terminate.
+    var isHostAppOpen = true
     lazy var appState: AppState = .init(inExt: true)
 
     private var tagRidDict: [Int: String] = [:]
@@ -147,6 +150,11 @@ class FinderSyncExt: FIFinderSync {
         guard isHostAppOpen else {
             return applicationMenu
         }
+
+        // Reload config from the shared app group on every menu build so the
+        // menu reflects changes made in the host app (added/removed apps,
+        // actions, file templates, folders) without restarting the extension.
+        appState.refresh()
 
         switch menuKind {
         //  No file or folder is selected in Finder

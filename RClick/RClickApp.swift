@@ -508,12 +508,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     print("Error: \(error)")
                 }
             } else {
-                logger.info("starting open dir .........\(dir.path), app:\(appUrl.path())")
+                logger.info("starting open dir: \(dir.path), app: \(appUrl.path())")
                 NSWorkspace.shared.open([dir], withApplicationAt: appUrl, configuration: config) { runningApp, error in
                     if let error = error {
-                        print("Error opening application: \(error.localizedDescription)")
+                        self.logger.error("Error opening application: \(error.localizedDescription, privacy: .public)")
                     } else if let runningApp = runningApp {
-                        print("Successfully opened application: \(runningApp.localizedName ?? "Unknown")")
+                        self.logger.info("Successfully opened application: \(runningApp.localizedName ?? "Unknown")")
                     }
                 }
             }
