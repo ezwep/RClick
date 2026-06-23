@@ -2,7 +2,7 @@
 //  Up.swift
 //  RClick
 //
-//  Created by 李旭 on 2025/9/21.
+//  Created by Li Xu on 2025/9/21.
 //
 import SwiftUI
 
@@ -30,23 +30,23 @@ struct UpdateView: View {
         VStack(spacing: 15) {
             ProgressView()
                 .scaleEffect(1.5)
-            Text("正在检查更新...")
+            Text("Checking for updates...")
                 .font(.headline)
         }
     }
     
     private func updateAvailableView(_ release: GitHubRelease) -> some View {
-        // 更新可用视图实现保持不变...
+        // The update-available view implementation stays unchanged...
         VStack(spacing: 15) {
             Image(systemName: "arrow.down.circle.fill")
                 .font(.system(size: 50))
                 .foregroundColor(.blue)
             
-            Text("发现新版本")
+            Text("New Version Available")
                 .font(.title2)
                 .bold()
             
-            Text("版本 \(release.version)")
+            Text("Version \(release.version)")
                 .font(.title3)
                 .foregroundColor(.secondary)
             
@@ -60,17 +60,17 @@ struct UpdateView: View {
             .cornerRadius(8)
             
             HStack {
-                Button("忽略此版本") {
+                Button("Ignore This Version") {
                     updateManager.ignoreCurrentUpdate()
                     updateManager.dismissUpdateSheet()
                 }
                 
-                Button("手动下载") {
+                Button("Download Manually") {
                     updateManager.openReleasesPage()
                     updateManager.dismissUpdateSheet()
                 }
                 
-                Button("下载并安装") {
+                Button("Download and Install") {
                     Task {
                         await updateManager.downloadAndInstallUpdate()
                     }
@@ -86,14 +86,14 @@ struct UpdateView: View {
                 .font(.system(size: 50))
                 .foregroundColor(.green)
             
-            Text("已是最新版本")
+            Text("Up to Date")
                 .font(.title2)
                 .bold()
             
-            Text("当前版本已是最新，无需更新。")
+            Text("You are on the latest version. No update is needed.")
                 .foregroundColor(.secondary)
             
-            Button("确定") {
+            Button("OK") {
                 updateManager.dismissUpdateSheet()
             }
             .buttonStyle(.borderedProminent)
@@ -106,7 +106,7 @@ struct UpdateView: View {
                 .font(.system(size: 50))
                 .foregroundColor(.yellow)
             
-            Text("检查更新失败")
+            Text("Failed to Check for Updates")
                 .font(.title2)
                 .bold()
             
@@ -114,7 +114,7 @@ struct UpdateView: View {
                 .font(.body)
                 .multilineTextAlignment(.center)
             
-            Button("确定") {
+            Button("OK") {
                 updateManager.dismissUpdateSheet()
             }
             .buttonStyle(.bordered)

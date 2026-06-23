@@ -2,7 +2,7 @@
 //  StringExtension.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/4/5.
+//  Created by Li Xu on 2024/4/5.
 //
 
 import Foundation

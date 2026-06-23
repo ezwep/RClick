@@ -2,7 +2,7 @@
 //  LaunchAtLogin.swift
 //  RClick
 //  from https://github.com/sindresorhus/LaunchAtLogin-Modern
-//  Created by 李旭 on 2024/12/19.
+//  Created by Li Xu on 2024/12/19.
 //
 
 import Foundation

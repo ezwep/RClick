@@ -2,7 +2,7 @@
 //  CommonDirsSettingTabView.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/4/10.
+//  Created by Li Xu on 2024/4/10.
 //
 
 import AppKit

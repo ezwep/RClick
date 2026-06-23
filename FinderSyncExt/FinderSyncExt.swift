@@ -2,7 +2,7 @@
 //  FinderSyncExt.swift
 //  FinderSyncExt
 //
-//  Created by 李旭 on 2024/4/4.
+//  Created by Li Xu on 2024/4/4.
 //
 
 import AppKit
@@ -54,7 +54,7 @@ class FinderSyncExt: FIFinderSync {
             }
         }
 
-        // 初始化共享模型上下文
+        // Initialize the shared model context
         setupModelContext()
 
         heartBeat()
@@ -65,34 +65,34 @@ class FinderSyncExt: FIFinderSync {
         let container = SharedDataManager.sharedModelContainer
         modelContext = ModelContext(container)
 
-        // 可选：立即查询一次，验证连接
+        // Optional: query once immediately to verify the connection
         let _ = fetchAllPermDirs()
     }
 
-    // 修正后的查询方法
+    // Corrected query method
     func fetchAllPermDirs() -> [PermDir] {
         guard let modelContext = modelContext else {
-            logger.warning("模型上下文未初始化")
+            logger.warning("Model context not initialized")
             return []
         }
 
         do {
-            // 方法1：使用 id 进行排序（因为 id 是 String，遵循 Comparable）
+            // Approach 1: sort by id (since id is a String and conforms to Comparable)
             let descriptor = FetchDescriptor<PermDir>(
-                sortBy: [SortDescriptor(\.id)] // 使用 id 排序
+                sortBy: [SortDescriptor(\.id)] // Sort by id
             )
 
             let permDirs = try modelContext.fetch(descriptor)
-            logger.info("找到 \(permDirs.count) 个 PermDir 记录")
+            logger.info("Found \(permDirs.count) PermDir records")
 
-            // 打印所有记录用于调试
+            // Print all records for debugging
             for permDir in permDirs {
                 logger.info("ID: \(permDir.id), URL: \(permDir.url.path())")
             }
 
             return permDirs
         } catch {
-            logger.warning("查询 PermDir 失败: \(error)")
+            logger.warning("Failed to query PermDir: \(error)")
             return []
         }
     }
@@ -149,7 +149,7 @@ class FinderSyncExt: FIFinderSync {
         }
 
         switch menuKind {
-        //  finder 中没有选中文件或文件夹
+        //  No file or folder is selected in Finder
 
         case .toolbarItemMenu, .contextualMenuForItems, .contextualMenuForContainer:
             logger.info("mak menddd .....")
@@ -199,7 +199,7 @@ class FinderSyncExt: FIFinderSync {
     private func getUniqueTag(for rid: String) -> Int {
         var newTag = Int.random(in: 1 ... Int.max)
 
-        // 确保生成的 tag 不在已有的 keys 中
+        // Ensure the generated tag is not already among the existing keys
         while tagRidDict.keys.contains(newTag) {
             newTag = Int.random(in: 1 ... Int.max)
         }
@@ -224,14 +224,14 @@ class FinderSyncExt: FIFinderSync {
         return actionMenuitems
     }
 
-    // 创建文件菜单容器
+    // Create the file menu container
     @objc func createCommonDirMenuItem() -> NSMenuItem? {
         let commonDirs = appState.cdirs
         if commonDirs.isEmpty {
-            logger.warning("没有启用的常用文件夹")
+            logger.warning("No favorite folders are enabled")
             return nil
         }
-        logger.info("开始创建常用文件夹菜单项")
+        logger.info("Start creating favorite folder menu items")
 
         let menuItem = NSMenuItem()
         menuItem.title = String(localized: "Favorite Folders")
@@ -248,26 +248,26 @@ class FinderSyncExt: FIFinderSync {
             menuItem.image = NSImage(systemSymbolName: "folder", accessibilityDescription: "folder")!
 
             submenu.addItem(menuItem)
-            logger.info("添加常用文件夹菜单项: \(dir.name)")
+            logger.info("Added favorite folder menu item: \(dir.name)")
         }
 
         menuItem.submenu = submenu
-        logger.info("常用文件夹菜单创建完成")
+        logger.info("Favorite folder menu created")
         return menuItem
     }
 
     @MainActor @objc func openCommonDir(_ menuItem: NSMenuItem) {
         guard let rid = tagRidDict[menuItem.tag] else {
-            logger.warning("未获取到rid")
+            logger.warning("Failed to obtain rid")
             return
         }
         guard let dirItem = appState.cdirs.first(where: { $0.id == rid }) else {
-            logger.warning("未找到对应的常用文件夹配置，rid: \(rid)")
+            logger.warning("No matching favorite folder configuration found, rid: \(rid)")
             return
         }
 
         messager.sendMessage(name: Key.messageFromFinder, data: MessagePayload(action: "common-dirs", target: [dirItem.url.path], rid: dirItem.id))
-        logger.info("已发送打开常用文件夹消息: \(dirItem.name), 路径: \(dirItem.url.path)")
+        logger.info("Sent open favorite folder message: \(dirItem.name), path: \(dirItem.url.path)")
     }
 
     @objc func createFileCreateMenuItem() -> NSMenuItem? {

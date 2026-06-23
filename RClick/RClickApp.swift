@@ -2,7 +2,7 @@
 //  RClickApp.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/4/4.
+//  Created by Li Xu on 2024/4/4.
 //
 import AppKit
 import Foundation
@@ -40,7 +40,7 @@ struct RClickApp: App {
             .environmentObject(updateManager)
             .modelContainer(SharedDataManager.sharedModelContainer)
 
-        // showMenuBarExtra 为 true 时显示菜单条
+        // Show the menu bar item when showMenuBarExtra is true
         MenuBarExtra(
             "RClick", image: "MenuBar", isInserted: $showMenuBarExtra
         ) {
@@ -64,7 +64,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var settingsWindow: NSWindow!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // 在 app 启动后执行的函数
+        // Function executed after the app launches
 
         if showInDock {
             NSApp.setActivationPolicy(.regular)
@@ -96,17 +96,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func openCommonDirs(target: [String]) {
-        logger.info("开始打开常用目录，目标路径: \(target)")
+        logger.info("Started opening frequently used directories, target paths: \(target)")
 
         for dirPath in target {
             let path = dirPath.removingPercentEncoding ?? dirPath
             let url = URL(fileURLWithPath: path, isDirectory: true)
 
-            logger.info("正在打开目录: \(path)")
+            logger.info("Opening directory: \(path)")
             NSWorkspace.shared.open(url)
         }
 
-        logger.info("常用目录打开操作完成")
+        logger.info("Finished opening frequently used directories")
     }
 
     func sendObserveDirMessage() {
@@ -120,23 +120,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    // 创建一个当前文件夹下的不存在的新建文件名
+    // Build a new, non-existing file name within the current folder
     func getUniqueFilePath(dir: String, ext: String) -> String {
-        // 创建文件管理器
+        // Create the file manager
         let fileManager = FileManager.default
 
-        // 基础文件名
+        // Base file name
         let baseFileName = String(localized: "Untitled")
 
-        // 初始文件路径
+        // Initial file path
         var filePath = "\(dir)\(baseFileName)\(ext)"
 
-        // 文件计数器
+        // File counter
         var counter = 1
 
-        // 查询文件是否存在，直到找到一个不存在的路径
+        // Check whether the file exists until a non-existing path is found
         while fileManager.fileExists(atPath: filePath) {
-            // 更新文件名和路径，使用计数器递增
+            // Update the file name and path, incrementing the counter
             let newFileName = "\(baseFileName)\(counter)"
             filePath = "\(dir)\(newFileName)\(ext)"
             counter += 1
@@ -173,12 +173,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         var fileURLs: [URL] = []
 
         if trigger == "ctx-container" {
-            // 显示警告对话框
+            // Show a warning dialog
             let alert = NSAlert()
-            alert.messageText = "警告"
-            alert.informativeText = "无法共享当前文件夹，请选择文件或子文件夹进行共享。"
+            alert.messageText = "Warning"
+            alert.informativeText = "Cannot share the current folder. Please select a file or subfolder to share."
             alert.alertStyle = .warning
-            alert.addButton(withTitle: "确定")
+            alert.addButton(withTitle: "OK")
             alert.runModal()
             return
         }
@@ -188,27 +188,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             logger.info("airdrop path \(decodedPath)")
 
             if Utils.isProtectedFolder(decodedPath) {
-                // 显示警告对话框
+                // Show a warning dialog
                 let alert = NSAlert()
-                alert.messageText = "警告"
-                alert.informativeText = "无法分享系统保护文件夹：\(decodedPath)"
+                alert.messageText = "Warning"
+                alert.informativeText = "Cannot share a protected system folder: \(decodedPath)"
                 alert.alertStyle = .warning
-                alert.addButton(withTitle: "确定")
+                alert.addButton(withTitle: "OK")
                 alert.runModal()
 
-                logger.warning("试图分享受保护的系统文件夹，操作已被阻止: \(decodedPath)")
+                logger.warning("Attempted to share a protected system folder, operation blocked: \(decodedPath)")
                 continue
             }
 
             var isDir: ObjCBool = false
             if fm.fileExists(atPath: decodedPath, isDirectory: &isDir) {
                 if isDir.boolValue {
-                    logger.warning("不能通过 AirDrop 分享文件夹: \(decodedPath)")
+                    logger.warning("Cannot share a folder via AirDrop: \(decodedPath)")
                     let alert = NSAlert()
-                    alert.messageText = "提示"
-                    alert.informativeText = "不能通过 AirDrop 分享文件夹：\(decodedPath)"
+                    alert.messageText = "Notice"
+                    alert.informativeText = "Cannot share a folder via AirDrop: \(decodedPath)"
                     alert.alertStyle = .informational
-                    alert.addButton(withTitle: "确定")
+                    alert.addButton(withTitle: "OK")
                     alert.runModal()
                     continue
                 } else {
@@ -220,23 +220,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if !fileURLs.isEmpty {
             if let airDropService = NSSharingService(named: .sendViaAirDrop) {
                 airDropService.perform(withItems: fileURLs)
-                logger.info("已通过 AirDrop 分享文件: \(fileURLs.map { $0.path }.joined(separator: ", "))")
+                logger.info("Shared files via AirDrop: \(fileURLs.map { $0.path }.joined(separator: ", "))")
             } else {
-                logger.warning("无法获取 AirDrop 服务")
+                logger.warning("Unable to obtain the AirDrop service")
             }
         }
     }
 
-    // 显示目标文件夹下的隐藏的所有文件和文件夹
+    // Reveal all hidden files and folders within the target folder
     func unhideFilesAndDirs(_ target: [String], _ trigger: String) {
-        logger.info("开始取消隐藏文件和目录，目标路径: \(target)")
+        logger.info("Started unhiding files and directories, target paths: \(target)")
         if let dirPath = target.first {
             let fileManager = FileManager.default
             let path = dirPath.removingPercentEncoding ?? dirPath
-            logger.info("处理主目录: \(path)")
+            logger.info("Processing main directory: \(path)")
             var url = URL(fileURLWithPath: path)
 
-            // 仅处理目录下一级的内容
+            // Only process the contents one level below the directory
             do {
                 let contents = try fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: [.isHiddenKey], options: [.skipsPackageDescendants])
                 for case var fileURL in contents {
@@ -244,81 +244,81 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         var resourceValues = URLResourceValues()
                         resourceValues.isHidden = false
                         try fileURL.setResourceValues(resourceValues)
-                        logger.info("成功取消隐藏: \(fileURL.path)")
+                        logger.info("Successfully unhid: \(fileURL.path)")
                     } catch {
-                        logger.error("取消隐藏失败: \(fileURL.path): \(error)")
+                        logger.error("Failed to unhide: \(fileURL.path): \(error)")
                     }
                 }
             } catch {
-                logger.error("获取目录内容失败: \(error)")
+                logger.error("Failed to get directory contents: \(error)")
             }
 
-            // 处理目录本身
+            // Process the directory itself
             do {
                 var resourceValues = URLResourceValues()
                 resourceValues.isHidden = false
                 try url.setResourceValues(resourceValues)
-                logger.info("成功取消隐藏主目录: \(path)")
+                logger.info("Successfully unhid the main directory: \(path)")
             } catch {
-                logger.error("取消隐藏主目录失败: \(path): \(error)")
+                logger.error("Failed to unhide the main directory: \(path): \(error)")
             }
-            logger.info("取消隐藏操作完成，共处理目录: \(path)")
+            logger.info("Finished unhiding, directory processed: \(path)")
         }
     }
 
-    // 隐藏目标文件或文件夹
+    // Hide the target file or folder
     func hideFilesAndDirs(_ target: [String], _ trigger: String) {
-        logger.info("开始隐藏文件和目录，目标路径: \(target), 触发器: \(trigger)")
+        logger.info("Started hiding files and directories, target paths: \(target), trigger: \(trigger)")
         let fileManager = FileManager.default
 
         if trigger == "ctx-container", let dirPath = target.first {
             let path = dirPath.removingPercentEncoding ?? dirPath
-            logger.info("处理主目录: \(path)")
+            logger.info("Processing main directory: \(path)")
             let url = URL(fileURLWithPath: path)
 
-            // 仅处理目录下一级的内容
+            // Only process the contents one level below the directory
             do {
                 let contents = try fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsPackageDescendants])
                 for case var fileURL in contents {
-                    // 如果是受保护的文件路径，跳过
+                    // Skip if it is a protected file path
                     if Utils.isProtectedFolder(fileURL.path) {
-                        logger.warning("跳过受保护的文件路径: \(fileURL.path)")
+                        logger.warning("Skipping protected file path: \(fileURL.path)")
                         continue
                     }
                     do {
                         var resourceValues = URLResourceValues()
                         resourceValues.isHidden = true
                         try fileURL.setResourceValues(resourceValues)
-                        logger.info("成功隐藏: \(fileURL.path)")
+                        logger.info("Successfully hid: \(fileURL.path)")
                     } catch {
-                        logger.error("隐藏失败: \(fileURL.path): \(error)")
+                        logger.error("Failed to hide: \(fileURL.path): \(error)")
                     }
                 }
             } catch {
-                logger.error("获取目录内容失败: \(error)")
+                logger.error("Failed to get directory contents: \(error)")
             }
         } else if trigger == "ctx-items" {
             for dirPath in target {
                 let path = dirPath.removingPercentEncoding ?? dirPath
-                logger.info("处理路径: \(path)")
+                logger.info("Processing path: \(path)")
                 var url = URL(fileURLWithPath: path)
 
-                // 处理单个文件或目录
+                // Process a single file or directory
                 if Utils.isProtectedFolder(path) {
-                    logger.warning("跳过受保护的文件路径: \(path)")
+                    logger.warning("Skipping protected file path: \(path)")
                     continue
                 }
                 do {
                     var resourceValues = URLResourceValues()
                     resourceValues.isHidden = true
                     try url.setResourceValues(resourceValues)
-                    logger.info("成功隐藏: \(path)")
+                    logger.info("Successfully hid: \(path)")
                 } catch {
-                    logger.error("隐藏失败: \(path): \(error)")
+                    logger.error("Failed to hide: \(path): \(error)")
                 }
             }
         }
-        logger.info("隐藏操作完成")
+        logger.info("Finished hiding operation")
     }
 
     func copyPath(_ target: [String]) {
@@ -334,14 +334,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func deleteFoldorFile(_ target: [String], _ trigger: String) {
         logger.info("---- deleteFoldorFile  trigger:\(trigger)")
         let fm = FileManager.default
-        // 如果是容器，无法删除
+        // If it is a container, it cannot be deleted
         if trigger == "ctx-container" {
-            // 显示警告对话框
+            // Show a warning dialog
             let alert = NSAlert()
-            alert.messageText = "警告"
-            alert.informativeText = "无法删除当前文件夹，请选择文件或子文件夹进行删除。"
+            alert.messageText = "Warning"
+            alert.informativeText = "Cannot delete the current folder. Please select a file or subfolder to delete."
             alert.alertStyle = .warning
-            alert.addButton(withTitle: "确定")
+            alert.addButton(withTitle: "OK")
             alert.runModal()
             return
         }
@@ -350,15 +350,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let decodedPath = item.removingPercentEncoding ?? item
 
             if Utils.isProtectedFolder(decodedPath) {
-                // 显示警告对话框
+                // Show a warning dialog
                 let alert = NSAlert()
-                alert.messageText = "警告"
-                alert.informativeText = "无法删除系统保护文件夹：\(decodedPath)"
+                alert.messageText = "Warning"
+                alert.informativeText = "Cannot delete a protected system folder: \(decodedPath)"
                 alert.alertStyle = .warning
-                alert.addButton(withTitle: "确定")
+                alert.addButton(withTitle: "OK")
                 alert.runModal()
 
-                logger.warning("试图删除受保护的系统文件夹，操作已被阻止: \(decodedPath)")
+                logger.warning("Attempted to delete a protected system folder, operation blocked: \(decodedPath)")
                 continue
             }
 
@@ -370,15 +370,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     let folderURL = try URL(resolvingBookmarkData: permDir.bookmark, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &isStale)
 
                     if isStale {
-                        // 重新创建 bookmarkData
-                        // createBookmark(for: folderURL) // 这里可以调用之前的函数
+                        // Recreate the bookmarkData
+                        // createBookmark(for: folderURL) // The earlier function can be called here
                     }
 
-                    // 进入安全范围
+                    // Enter the security scope
                     let success = folderURL.startAccessingSecurityScopedResource()
                     if success {
                         try fm.removeItem(atPath: item.removingPercentEncoding ?? item)
-                        // 完成后释放资源
+                        // Release the resource when done
                         folderURL.stopAccessingSecurityScopedResource()
                     } else {
                         logger.warning("fail access scope \(permDir.url.path)")
@@ -398,7 +398,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let ext = rcitem.ext
         logger.info("create file dir:\(dirPath) -- ext \(ext)")
-        // 完整的文件路径
+        // Full file path
         let filePath = getUniqueFilePath(dir: dirPath.removingPercentEncoding ?? dirPath, ext: ext)
 
         let fileURL = URL(fileURLWithPath: filePath)
@@ -410,26 +410,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             do {
                 let folderURL = try URL(resolvingBookmarkData: dir.bookmark, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &isStale)
 
-                // 进入安全范围
+                // Enter the security scope
                 let success = folderURL.startAccessingSecurityScopedResource()
                 if success {
                     do {
                         let fileManager = FileManager.default
 
-                        // 检查是否有有效的模板URL
+                        // Check whether there is a valid template URL
                         if let templateUrl = rcitem.template {
                             try fileManager.copyItem(at: templateUrl, to: fileURL)
-                            logger.info("已成功复制模板到目标路径: \(fileURL.path)")
+                            logger.info("Successfully copied the template to the target path: \(fileURL.path)")
 
                         } else {
-                            // 从Bundle中获取模板文件
+                            // Get the template file from the bundle
                             if let defaultTemplateURL = Bundle.main.url(forResource: "template", withExtension: ext.replacingOccurrences(of: ".", with: "")) {
-                                logger.info("使用模板创建文件，模板路径: \(defaultTemplateURL.path)")
+                                logger.info("Creating file from template, template path: \(defaultTemplateURL.path)")
                                 try fileManager.copyItem(at: defaultTemplateURL, to: fileURL)
-                                logger.info("已成功复制模板到目标路径: \(fileURL.path)")
+                                logger.info("Successfully copied the template to the target path: \(fileURL.path)")
                             } else {
-                                logger.warning("模板文件不存在: \(ext)")
-                                // 模板不存在时创建空文件
+                                logger.warning("Template file does not exist: \(ext)")
+                                // Create an empty file when the template does not exist
                                 try Data().write(to: fileURL)
                             }
                         }
@@ -438,25 +438,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         case NSCocoaErrorDomain:
                             switch error.code {
                             case NSFileNoSuchFileError:
-                                logger.error("文件不存在: \(filePath)")
+                                logger.error("File does not exist: \(filePath)")
                             case NSFileWriteOutOfSpaceError:
-                                logger.error("磁盘空间不足")
+                                logger.error("Insufficient disk space")
                             case NSFileWriteNoPermissionError:
-                                logger.error("没有写入权限: \(filePath)")
+                                logger.error("No write permission: \(filePath)")
                             default:
-                                logger.error("创建文件错误: \(error.localizedDescription) (错误码: \(error.code))")
+                                logger.error("Error creating file: \(error.localizedDescription) (error code: \(error.code))")
                             }
                         default:
-                            logger.error("未处理的错误: \(error.localizedDescription) (错误码: \(error.code))")
+                            logger.error("Unhandled error: \(error.localizedDescription) (error code: \(error.code))")
                         }
                     }
-                    // 完成后释放资源
+                    // Release the resource when done
                     folderURL.stopAccessingSecurityScopedResource()
                 } else {
                     logger.warning("fail access scope \(dir.url.path)")
                 }
             } catch {
-                print("解析 bookmark 失败：\(error)")
+                print("Failed to resolve bookmark: \(error)")
             }
         }
     }
@@ -478,28 +478,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             config.environment = rcitem.environment
 
             if appUrl.path.hasSuffix("WezTerm.app") {
-                // 创建一个 Process 实例
+                // Create a Process instance
                 let process = Process()
 
-                // 设置要运行的二进制文件路径
+                // Set the path to the binary to run
                 process.executableURL = URL(fileURLWithPath: "/Users/lixu/play/rpm/target/debug/rpm")
 
-                // 设置命令行参数（如果有）
+                // Set the command line arguments (if any)
                 process.arguments = ["--name", "arg2"]
 
-                // 设置标准输出和标准错误
+                // Set standard output and standard error
                 let pipe = Pipe()
                 process.standardOutput = pipe
                 process.standardError = pipe
 
                 do {
-                    // 启动进程
+                    // Start the process
                     try process.run()
 
-                    // 等待进程完成
+                    // Wait for the process to finish
                     process.waitUntilExit()
 
-                    // 读取输出
+                    // Read the output
                     let data = pipe.fileHandleForReading.readDataToEndOfFile()
                     if let output = String(data: data, encoding: .utf8) {
                         print("Output: \(output)")

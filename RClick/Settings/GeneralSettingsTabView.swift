@@ -2,7 +2,7 @@
 //  GeneralSettingsTabView.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/4/10.
+//  Created by Li Xu on 2024/4/10.
 //
 
 import AppKit
@@ -66,22 +66,22 @@ struct GeneralSettingsTabView: View {
                 Toggle("Show in menu bar", isOn: $showMenuBarExtra)
                     .toggleStyle(.checkbox)
                 Spacer()
-                // 设置 showMenuBarExtra 的开关
+                // Toggle for showMenuBarExtra
                 Toggle("Show in dock", isOn: $showInDock)
                     .toggleStyle(.checkbox)
                     .onChange(of: showInDock) { _, newValue in
                         logger.debug("the hcnage --- a kjd \(newValue)")
-                        // 在这里处理开关状态的变化
+                        // Handle the toggle state change here
                         if newValue {
-                            // 显示菜单栏图标
+                            // Show the menu bar icon
                             NSApp.setActivationPolicy(.regular)
                         } else {
-                            // 隐藏菜单栏图标
+                            // Hide the menu bar icon
                             NSApp.setActivationPolicy(.accessory)
                         }
                     }
             }
-            // 设置 showMenuBarExtra 的开关
+            // Toggle for showMenuBarExtra
 
             Divider()
             HStack {}.frame(height: 10)
@@ -186,28 +186,28 @@ struct GeneralSettingsTabView: View {
     }
 
     private func insertNewPermDir(url: URL) {
-        // 2. 创建唯一的ID
+        // 2. Create a unique ID
         let newId = UUID().uuidString
 
-        // 3. 创建Bookmark Data (这里你需要根据实际情况提供)
-        // 例如，你可以尝试从URL创建bookmark data，或者根据你的应用逻辑提供相应的数据。
-        // 如果暂时没有实际数据，可以使用空Data()，但不建议长期这样。
+        // 3. Create bookmark data (you need to provide this based on your actual situation)
+        // For example, you can try to create bookmark data from the URL, or provide the corresponding data based on your app logic.
+        // If there is no actual data for now, you can use an empty Data(), but this is not recommended long term.
         let bookmarkData: Data
         do {
             bookmarkData = try url.bookmarkData(options: .suitableForBookmarkFile, includingResourceValuesForKeys: nil, relativeTo: nil)
         } catch {
             print("Failed to create bookmark data: \(error)")
-            // 根据你的需求决定错误处理方式，这里使用空Data
+            // Decide on error handling based on your needs; here we use empty Data
             bookmarkData = Data()
         }
 
-        // 4. 创建新的PermDir实例
+        // 4. Create a new PermDir instance
         let newPermDir = PermDir(id: newId, url: url, bookmark: bookmarkData)
 
-        // 5. 插入到模型上下文:cite[1]
+        // 5. Insert into the model context
         modelContext.insert(newPermDir)
 
-        // 6. 保存上下文（SwiftData有时会自动保存，但显式保存是个好习惯，尤其是在重要操作后）
+        // 6. Save the context (SwiftData sometimes saves automatically, but explicit saving is a good habit, especially after important operations)
         do {
             try modelContext.save()
             print("PermDir inserted successfully.")
@@ -225,7 +225,7 @@ struct GeneralSettingsTabView: View {
             logger.info("hasParentDir\(hasParentDir)")
         } else {
             store.dirs.append(PermissiveDir(permUrl: url))
-            // 声明一个PermDir 实体，并插入到 modelContext 中
+            // Declare a PermDir entity and insert it into the modelContext
             insertNewPermDir(url: url)
             try? store.savePermissiveDir()
 
@@ -235,7 +235,7 @@ struct GeneralSettingsTabView: View {
     }
 
     @MainActor private func removeBookmark(_ item: PermissiveDir) {
-        // 根据item 查找offsets
+        // Look up offsets based on item
         if let index = store.dirs.firstIndex(of: item) {
             store.deletePermissiveDir(index: index)
         }

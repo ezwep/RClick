@@ -2,7 +2,7 @@
 //  ActionSettingsView.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/4/9.
+//  Created by Li Xu on 2024/4/9.
 //
 
 import SwiftUI

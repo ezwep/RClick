@@ -2,36 +2,36 @@
 //  ModelContainer.swift
 //  RClick
 //
-//  Created by 李旭 on 2025/10/3.
+//  Created by Li Xu on 2025/10/3.
 //
 
 import Foundation
 import SwiftData
 
-// 共享 ModelContainer 配置工具类
+// Shared ModelContainer configuration utility class
 class SharedDataManager {
     static let appGroupIdentifier = Constants.suitName
 
     static var sharedModelContainer: ModelContainer = {
         do {
-            // 获取 App Group 共享目录
+            // Get the App Group shared directory
             let storeURL: URL
 
             guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier) else {
-                fatalError("无法获取 App Group 共享目录。请检查 App Group 配置: \(appGroupIdentifier)")
+                fatalError("Unable to get the App Group shared directory. Please check the App Group configuration: \(appGroupIdentifier)")
             }
             storeURL = containerURL.appendingPathComponent("RClickDatabase.sqlite")
 
-            // 创建 ModelConfiguration 使用共享路径
+            // Create the ModelConfiguration using the shared path
             let configuration = ModelConfiguration(
                 url: storeURL,
                 allowsSave: true,
                 cloudKitDatabase: .none
             )
 
-            // 创建 ModelContainer
+            // Create the ModelContainer
             let container = try ModelContainer(
-                for: PermDir.self, // 你的模型类型
+                for: PermDir.self, // your model types
                 configurations: configuration
             )
 

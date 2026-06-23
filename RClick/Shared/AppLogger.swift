@@ -2,7 +2,7 @@
 //  AppLogger.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/4/25.
+//  Created by Li Xu on 2024/4/25.
 //
 
 import OSLog

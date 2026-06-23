@@ -2,7 +2,7 @@
 //  Models.swift
 //  RClick
 //
-//  Created by 李旭 on 2025/10/3.
+//  Created by Li Xu on 2025/10/3.
 //
 
 import SwiftData

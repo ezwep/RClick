@@ -2,7 +2,7 @@
 //  SettingsView.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/4/4.
+//  Created by Li Xu on 2024/4/4.
 //
 
 import SwiftUI
@@ -41,7 +41,7 @@ struct SettingsView: View {
             List(selection: self.$selectedTab) {
                 ForEach(Tabs.allCases, id: \.self) { tab in
                     HStack {
-                        // 使用固定大小的frame来确保图标大小一致
+                        // Use a fixed-size frame to keep the icon size consistent
                         Label {
                             Text(LocalizedStringKey(tab.rawValue))
                                 .font(.title2)
@@ -63,7 +63,7 @@ struct SettingsView: View {
             .scrollDisabled(true)
             .navigationSplitViewColumnWidth(210)
         } header: {
-            //  App Icon 部分
+            //  App Icon section
             VStack {
                 HStack {
                     Spacer()
@@ -87,7 +87,7 @@ struct SettingsView: View {
     }
 
     @ViewBuilder var detailView: some View {
-        // 右侧内容
+        // Right-side content
         Group {
             switch self.selectedTab {
             case .general:

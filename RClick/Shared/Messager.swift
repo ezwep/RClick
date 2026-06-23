@@ -2,7 +2,7 @@
 //  Messager.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/4/9.
+//  Created by Li Xu on 2024/4/9.
 //
 
 import AppKit
@@ -21,7 +21,7 @@ struct MessagePayload: Codable {
     var target: [String] = []
     var rid: String = ""
     // ctx-items ctx-container ctx-sidebar toolbar
-    var trigger: String = "" // 改为可选类型，避免解码失败
+    var trigger: String = "" // Changed to an optional type to avoid decoding failures
 
     public var description: String {
         return "MessagePayload(action: \(action), target: \(target), rid:\(rid), trigger: \(trigger))"
@@ -57,7 +57,7 @@ class Messager {
             let messsagePayloadCacheEntry = try JSONDecoder().decode(MessagePayload.self, from: jsonData)
             return messsagePayloadCacheEntry
         } catch {
-            logger.warning("Failed to decode MessagePayload: \(error)， jsondata:\(jsonData)")
+            logger.warning("Failed to decode MessagePayload: \(error), jsondata:\(jsonData)")
             return MessagePayload() // Return a default instance to handle errors gracefully
         }
     }

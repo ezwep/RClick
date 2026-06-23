@@ -2,7 +2,7 @@
 //  Extension+.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/8/9.
+//  Created by Li Xu on 2024/8/9.
 //
 
 import Foundation

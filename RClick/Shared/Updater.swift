@@ -2,13 +2,13 @@
 //  Updater.swift
 //  RClick
 //
-//  Created by 李旭 on 2025/9/21.
+//  Created by Li Xu on 2025/9/21.
 //
 
 import Foundation
 import SwiftUI
 
-// MARK: - 数据模型
+// MARK: - Data Models
 
 struct GitHubRelease: Codable, Identifiable {
     let id: Int
@@ -48,12 +48,12 @@ struct GitHubRelease: Codable, Identifiable {
     }
 }
 
-// MARK: - 用户偏好设置
+// MARK: - User Preferences
 
 class UpdatePreferences: ObservableObject {
     @AppStorage("ignoredVersion") private var ignoredVersionData: Data = .init()
     
-    // 获取忽略的版本列表
+    // Get the list of ignored versions
     var ignoredVersions: [String] {
         get {
             do {
@@ -71,7 +71,7 @@ class UpdatePreferences: ObservableObject {
         }
     }
     
-    // 忽略特定版本
+    // Ignore a specific version
     func ignoreVersion(_ version: String) {
         var ignored = ignoredVersions
         if !ignored.contains(version) {
@@ -80,13 +80,13 @@ class UpdatePreferences: ObservableObject {
         }
     }
     
-    // 检查版本是否被忽略
+    // Check whether a version is ignored
     func isVersionIgnored(_ version: String) -> Bool {
         ignoredVersions.contains(version)
     }
 }
 
-// MARK: - GitHub API 服务
+// MARK: - GitHub API Service
 
 class GitHubReleaseChecker {
     private let owner: String
@@ -97,7 +97,7 @@ class GitHubReleaseChecker {
         self.repo = repo
     }
     
-    // 获取最新release
+    // Fetch the latest release
     func fetchLatestRelease() async throws -> GitHubRelease {
         let url = URL(string: "https://api.github.com/repos/\(owner)/\(repo)/releases/latest")!
         print(url)
@@ -115,31 +115,31 @@ class GitHubReleaseChecker {
         return try decoder.decode(GitHubRelease.self, from: data)
     }
     
-    // 检查是否需要更新
+    // Check whether an update is needed
     func checkForUpdate(currentVersion: String, includePrereleases: Bool = false) async -> GitHubRelease? {
         print(currentVersion)
         do {
             let latestRelease = try await fetchLatestRelease()
             
-            // 跳过草稿版和预发布版（除非明确包含）
+            // Skip drafts and prereleases (unless explicitly included)
             if latestRelease.draft || (!includePrereleases && latestRelease.prerelease) {
                 return nil
             }
-            
-            // 比较版本
+
+            // Compare versions
             if compareVersions(currentVersion, latestRelease.version) == .orderedAscending {
                 return latestRelease
             } else {
                 print("the last verison \(latestRelease.version)")
             }
         } catch {
-            print("检查更新失败: \(error)")
+            print("Failed to check for updates: \(error)")
         }
         
         return nil
     }
     
-    // 语义化版本比较
+    // Semantic version comparison
     private func compareVersions(_ version1: String, _ version2: String) -> ComparisonResult {
         let components1 = version1.components(separatedBy: ".")
         let components2 = version2.components(separatedBy: ".")
@@ -152,7 +152,7 @@ class GitHubReleaseChecker {
                 if num1 < num2 { return .orderedAscending }
                 if num1 > num2 { return .orderedDescending }
             } else {
-                // 处理非数字部分（如beta、rc等）
+                // Handle non-numeric parts (such as beta, rc, etc.)
                 let comparison = part1.compare(part2)
                 if comparison != .orderedSame {
                     return comparison
@@ -164,7 +164,7 @@ class GitHubReleaseChecker {
     }
 }
 
-// MARK: - 更新管理器
+// MARK: - Update Manager
 
 @MainActor
 class UpdateManager: ObservableObject {
@@ -185,14 +185,14 @@ class UpdateManager: ObservableObject {
         self.currentVersion = currentVersion
     }
     
-    // 关闭更新提示
+    // Dismiss the update prompt
     func dismissUpdateSheet() {
         showUpdateSheet = false
         availableUpdate = nil
         updateError = nil
     }
       
-    // 检查更新
+    // Check for updates
     func checkForUpdates(force: Bool = false) async {
         isChecking = true
         updateError = nil
@@ -202,34 +202,34 @@ class UpdateManager: ObservableObject {
         
         guard let release = await githubChecker.checkForUpdate(currentVersion: currentVersion) else {
             print("not release")
-            updateError = "当前已经是最新版本"
+            updateError = "You are already on the latest version"
             return
         }
-            
-        // 检查用户是否忽略了此版本
+
+        // Check whether the user has ignored this version
         if !force && preferences.isVersionIgnored(release.version) {
-            print("忽略这个版本")
-            updateError = "已忽略版本 \(release.version)"
+            print("Ignoring this version")
+            updateError = "Ignored version \(release.version)"
             return
         }
             
         availableUpdate = release
     }
     
-    // MARK: - 下载和安装方法
+    // MARK: - Download and Install Methods
 
     func downloadAndInstallUpdate() async {
         print("start downloadAndInstallUpdate")
         guard let release = availableUpdate else {
-            updateError = "没有可用的更新"
-            print("没有可用的更新")
+            updateError = "No update available"
+            print("No update available")
             return
         }
-        
-        // 查找 .app.zip 附件
+
+        // Find the .app.zip asset
         guard let appZipAsset = release.assets.first(where: { $0.name.lowercased().hasSuffix(".app.zip") }) else {
-            updateError = "未找到 .app.zip 格式的应用程序包"
-            print("没有可用的更新")
+            updateError = "No application package in .app.zip format was found"
+            print("No update available")
             return
         }
         
@@ -237,24 +237,24 @@ class UpdateManager: ObservableObject {
         downloadProgress = 0
         
         do {
-            // 1. 下载 ZIP 文件
+            // 1. Download the ZIP file
             let downloadedURL = try await downloadAsset(asset: appZipAsset)
-            
-            // 2. 解压到临时目录
+
+            // 2. Extract to a temporary directory
             let appURL = try await extractAppZip(zipURL: downloadedURL)
-            
-            // 3. 安装应用到应用程序目录
+
+            // 3. Install the app into the Applications directory
             try await installApplication(appURL: appURL)
-            
-            // 4. 清理临时文件
+
+            // 4. Clean up temporary files
             try? FileManager.default.removeItem(at: downloadedURL)
             try? FileManager.default.removeItem(at: appURL.deletingLastPathComponent())
-            
-            // 5. 提示用户安装完成
+
+            // 5. Notify the user that installation is complete
             showInstallationCompleteAlert()
-            
+
         } catch {
-            updateError = "安装失败: \(error.localizedDescription)"
+            updateError = "Installation failed: \(error.localizedDescription)"
         }
         
         isDownloading = false
@@ -268,7 +268,7 @@ class UpdateManager: ObservableObject {
         var request = URLRequest(url: URL(string: asset.browserDownloadUrl)!)
         request.setValue("application/octet-stream", forHTTPHeaderField: "Accept")
         
-        // 使用 AsyncThrowingStream 来包装下载进度和结果
+        // Use AsyncThrowingStream to wrap the download progress and result
         return try await withCheckedThrowingContinuation { continuation in
             // Stream bytes and write to destination file
             let session = URLSession(configuration: .default, delegate: nil, delegateQueue: nil)
@@ -285,13 +285,13 @@ class UpdateManager: ObservableObject {
                       let httpResponse = response as? HTTPURLResponse,
                       httpResponse.statusCode == 200
                 else {
-                    continuation.resume(throwing: DownloadError.downloadFailed("下载失败"))
+                    continuation.resume(throwing: DownloadError.downloadFailed("Download failed"))
                     print("downn error")
                     return
                 }
 
                 do {
-                    // 移动文件到目标位置
+                    // Move the file to the destination location
                     try? FileManager.default.removeItem(at: downloadURL)
                     try FileManager.default.moveItem(at: tempURL, to: downloadURL)
                     print("download url: \(downloadURL.path)")
@@ -305,19 +305,19 @@ class UpdateManager: ObservableObject {
         }
     }
 
-    // 关联对象键
+    // Associated object key
     private var DownloadDelegateKey: UInt8 = 0
 
-    // MARK: - 解压 APP Zip 文件
+    // MARK: - Extract APP Zip File
 
     private func extractAppZip(zipURL: URL) async throws -> URL {
         let tempDir = FileManager.default.temporaryDirectory
         let extractionDir = tempDir.appendingPathComponent("app_extraction")
         
-        // 创建解压目录
+        // Create the extraction directory
         try FileManager.default.createDirectory(at: extractionDir, withIntermediateDirectories: true)
-        
-        // 使用系统命令解压
+
+        // Use a system command to extract
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
         process.arguments = ["-o", zipURL.path, "-d", extractionDir.path]
@@ -332,27 +332,27 @@ class UpdateManager: ObservableObject {
         
         guard process.terminationStatus == 0 else {
             let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-            let errorString = String(data: errorData, encoding: .utf8) ?? "未知错误"
-            throw InstallationError.zipExtractionFailed("解压失败: \(errorString)")
+            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+            throw InstallationError.zipExtractionFailed("Extraction failed: \(errorString)")
         }
-        
-        // 查找解压后的 .app 文件
+
+        // Find the extracted .app file
         let fileManager = FileManager.default
         let contents = try fileManager.contentsOfDirectory(at: extractionDir, includingPropertiesForKeys: nil)
         
         guard let appURL = contents.first(where: { $0.pathExtension == "app" }) else {
-            throw InstallationError.noAppFound("在ZIP文件中未找到.app应用程序")
+            throw InstallationError.noAppFound("No .app application was found in the ZIP file")
         }
         
         return appURL
     }
 
-    // MARK: - 请求文件夹权限
+    // MARK: - Request Folder Access
     @MainActor
     private func requestApplicationsFolderAccess() async throws {
         let openPanel = NSOpenPanel()
-        openPanel.message = "RClick 需要权限以将更新安装到您的“应用程序”文件夹中。"
-        openPanel.prompt = "授予权限"
+        openPanel.message = "RClick needs permission to install the update into your Applications folder."
+        openPanel.prompt = "Grant Permission"
         openPanel.canChooseFiles = false
         openPanel.canChooseDirectories = true
         openPanel.allowsMultipleSelection = false
@@ -361,65 +361,65 @@ class UpdateManager: ObservableObject {
         let response = await openPanel.begin()
         
         guard response == .OK, let selectedURL = openPanel.url else {
-            throw InstallationError.permissionDenied("用户取消了授权。")
+            throw InstallationError.permissionDenied("The user cancelled the authorization.")
         }
 
-        // 验证用户是否选择了正确的文件夹
+        // Verify that the user selected the correct folder
         let applicationsURL = FileManager.default.urls(for: .applicationDirectory, in: .localDomainMask).first!
         guard selectedURL.path == applicationsURL.path else {
-            throw InstallationError.permissionDenied("请选择正确的‘应用程序’文件夹。")
+            throw InstallationError.permissionDenied("Please select the correct 'Applications' folder.")
         }
     }
-    // MARK: - 安装应用到应用程序目录
+    // MARK: - Install App into the Applications Directory
     private func installApplication(appURL: URL) async throws {
         let fileManager = FileManager.default
         let applicationsURL = fileManager.urls(for: .applicationDirectory, in: .localDomainMask).first!
         let destinationAppURL = applicationsURL.appendingPathComponent(appURL.lastPathComponent)
         print("start install \(appURL.path) --- \(destinationAppURL.path)")
-        // 安装之前，先检查一下destinationAppURL 是否有权限读写，如果没有权限，请求权限
-         // 检查对应用程序文件夹的写入权限
+        // Before installing, check whether destinationAppURL is readable/writable; if not, request permission
+         // Check write permission for the Applications folder
         if !fileManager.isWritableFile(atPath: applicationsURL.path) {
-            print("没有应用程序文件夹的写入权限，正在请求权限...")
+            print("No write permission for the Applications folder, requesting permission...")
             try await requestApplicationsFolderAccess()
         }
         do {
-            // 检查目标位置是否已存在应用
+            // Check whether an app already exists at the destination
             if fileManager.fileExists(atPath: destinationAppURL.path) {
-                // 先尝试移动到废纸篓而不是直接删除
+                // Try moving it to the Trash first instead of deleting directly
                 try fileManager.trashItem(at: destinationAppURL, resultingItemURL: nil)
             }
-            
-            // 复制应用到应用程序目录
+
+            // Copy the app into the Applications directory
             try fileManager.copyItem(at: appURL, to: destinationAppURL)
-            
-            // 验证应用程序是否有效
+
+            // Verify that the application is valid
             guard Bundle(url: destinationAppURL) != nil else {
 //                try fileManager.removeItem(at: destinationAppURL)
-                throw InstallationError.invalidAppBundle("应用程序包无效或损坏")
+                throw InstallationError.invalidAppBundle("The application bundle is invalid or corrupted")
             }
         } catch {
-            print("❌ 安装失败: \(error)")
+            print("❌ Installation failed: \(error)")
         }
         
     }
 
-    // MARK: - 显示安装完成提示
+    // MARK: - Show Installation Complete Prompt
 
     private func showInstallationCompleteAlert() {
         let alert = NSAlert()
-        alert.messageText = "更新安装完成"
-        alert.informativeText = "应用程序已成功更新。需要重启应用来完成更新过程。"
-        alert.addButton(withTitle: "立即重启")
-        alert.addButton(withTitle: "稍后重启")
-        
+        alert.messageText = "Update Installation Complete"
+        alert.informativeText = "The application was updated successfully. The app needs to be restarted to complete the update process."
+        alert.addButton(withTitle: "Restart Now")
+        alert.addButton(withTitle: "Restart Later")
+
         let response = alert.runModal()
         if response == .alertFirstButtonReturn {
-            // 启动新应用并退出当前应用
+            // Launch the new app and quit the current app
             launchNewApplicationAndExit()
         }
     }
 
-    // MARK: - 启动新应用并退出
+    // MARK: - Launch New App and Quit
 
     private func launchNewApplicationAndExit() {
         let fileManager = FileManager.default
@@ -430,14 +430,14 @@ class UpdateManager: ObservableObject {
         let configuration = NSWorkspace.OpenConfiguration()
         NSWorkspace.shared.openApplication(at: newAppURL, configuration: configuration) { _, error in
             if error != nil {
-                print("启动新应用失败，可能需要手动启动")
+                print("Failed to launch the new app; it may need to be launched manually")
             }
-            // 无论如何都退出当前应用
+            // Quit the current app regardless
             NSApp.terminate(nil)
         }
     }
 
-    // 忽略当前可用更新
+    // Ignore the currently available update
     func ignoreCurrentUpdate() {
         if let version = availableUpdate?.version {
             preferences.ignoreVersion(version)
@@ -445,14 +445,14 @@ class UpdateManager: ObservableObject {
         }
     }
     
-    // 打开GitHub发布页面
+    // Open the GitHub releases page
     func openReleasesPage() {
         if let url = URL(string: "https://github.com/wflixu/RClick/releases") {
             NSWorkspace.shared.open(url)
         }
     }
     
-    // MARK: - 错误类型
+    // MARK: - Error Types
 
     enum DownloadError: LocalizedError {
         case downloadFailed(String)

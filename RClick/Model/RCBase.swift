@@ -2,7 +2,7 @@
 //  RCBase.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/9/26.
+//  Created by Li Xu on 2024/9/26.
 //
 import AppKit
 import Foundation
@@ -127,7 +127,7 @@ extension PermissiveDir {
     }
 }
 
-// 常用目录
+// Frequently used directories
 struct CommonDir: RCBase {
     var id: String
     var name: String

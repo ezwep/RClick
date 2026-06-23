@@ -2,7 +2,7 @@
 //  NewFileSettingsTabView.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/11/18.
+//  Created by Li Xu on 2024/11/18.
 //
 
 import AppKit
@@ -17,21 +17,21 @@ struct NewFileSettingsTabView: View {
     @State private var editingFile: NewFile?
     @State private var showSelectApp = false
     
-    // 编辑状态
+    // Editing state
     @State private var editingName: String = ""
     @State private var editingExt: String = ""
     @State private var editingIcon: String = "document"
     @State private var editingOpenApp: URL?
-    // 添加状态变量
+    // Additional state variables
     @State private var editingTemplate: URL?
     @State private var showSelectTemplate = false
     
-    // 新建状态
+    // New-item state
     @State private var isAddingNew = false
     
     let messager = Messager.shared
-    // 优化后的存储路径选择
-    let templatesDir: URL? = // 选项1: 应用程序支持目录（推荐）
+    // Optimized storage path selection
+    let templatesDir: URL? = // Option 1: Application Support directory (recommended)
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
         .appendingPathComponent("RClick/Templates")
     
@@ -55,13 +55,13 @@ struct NewFileSettingsTabView: View {
                             .font(.body)
                     }
                 }
-                // TODO: 编辑 Button 和 Toggle 放在列表的右边
+                // TODO: Place the edit Button and Toggle on the right side of the list
                 List {
                     ForEach($appState.newFiles) { $item in
                         HStack(spacing: 12) {
-                            // 左侧图标和名称
+                            // Icon and name on the left
                             HStack(spacing: 8) {
-                                // 图标显示逻辑
+                                // Icon display logic
                                 if let appUrl = item.openApp {
                                     Image(nsImage: NSWorkspace.shared.icon(forFile: appUrl.path()))
                                         .resizable()
@@ -86,18 +86,18 @@ struct NewFileSettingsTabView: View {
                                 }
                                 VStack(alignment: .leading) {
                                     HStack {
-                                        Text("后缀：")
+                                        Text("Suffix: ")
                                         Text(item.ext)
                                     }
                                         
                                     if let templateUrl = item.template {
                                         HStack(spacing: 4) {
-                                            Text("模版：")
-                                            Text(templateUrl.lastPathComponent) // 文件名
-                                            Image(systemName: "info.circle") // 提示图标
+                                            Text("Template: ")
+                                            Text(templateUrl.lastPathComponent) // File name
+                                            Image(systemName: "info.circle") // Info icon
                                                 .foregroundColor(.secondary)
                                                 .font(.system(size: 12))
-                                                .help("模板路径：\(templateUrl.path)") // 图标悬停提示
+                                                .help("Template path: \(templateUrl.path)") // Icon hover tooltip
                                         }
                                     }
                                 }
@@ -107,7 +107,7 @@ struct NewFileSettingsTabView: View {
                             
                             Spacer()
                             
-                            // 右侧按钮组
+                            // Button group on the right
                             HStack(spacing: 16) {
                                 Button {
                                     editingFile = item
@@ -138,7 +138,7 @@ struct NewFileSettingsTabView: View {
                 }
             }
             
-            // 编辑浮层
+            // Editing overlay
             if editingFile != nil {
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
@@ -164,7 +164,7 @@ struct NewFileSettingsTabView: View {
                                 .textFieldStyle(.roundedBorder)
                         }
 
-                        // 在编辑浮层中添加模板选择部分
+                        // Add the template selection section to the editing overlay
                         VStack(alignment: .leading) {
                             Text("Template").font(.headline)
                             HStack {
@@ -325,7 +325,7 @@ struct NewFileSettingsTabView: View {
             updatedFile.icon = editingIcon
             updatedFile.openApp = editingOpenApp
             if let templateUrl = editingTemplate {
-                // 创建目录并复制模板
+                // Create the directory and copy the template
                 if let templateDir = templatesDir {
                     try? FileManager.default.createDirectory(at: templateDir, withIntermediateDirectories: true)
                     let destUrl = templateDir.appendingPathComponent(templateUrl.lastPathComponent)

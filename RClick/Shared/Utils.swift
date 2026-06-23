@@ -13,7 +13,7 @@ public class Utils {
     public static func getRealHomeDir() -> String {
         let fullPath = NSHomeDirectory()
         let components = fullPath.components(separatedBy: "/")
-        let limitedComponents = Array(components.prefix(3))  // 取前3个是因为第一个是空字符串（路径以/开头）
+        let limitedComponents = Array(components.prefix(3))  // Take the first 3 because the first one is an empty string (the path starts with /)
         return limitedComponents.joined(separator: "/")
     }
 }

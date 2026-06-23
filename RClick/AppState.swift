@@ -2,7 +2,7 @@
 //  File.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/9/26.
+//  Created by Li Xu on 2024/9/26.
 //
 
 import Combine
@@ -42,9 +42,9 @@ class AppState: ObservableObject {
         apps.remove(at: index)
         do {
             try save()
-            // 使用 result
+            // use result
         } catch {
-            // 处理错误
+            // handle error
             logger.info("save error: \(error.localizedDescription)")
         }
     }
@@ -55,9 +55,9 @@ class AppState: ObservableObject {
         
         do {
             try save()
-            // 使用 result
+            // use result
         } catch {
-            // 处理错误
+            // handle error
             logger.info("save error: \(error.localizedDescription)")
         }
     }
@@ -90,9 +90,9 @@ class AppState: ObservableObject {
         
         do {
             try save()
-            // 使用 result
+            // use result
         } catch {
-            // 处理错误
+            // handle error
             logger.info("save error: \(error.localizedDescription)")
         }
     }
@@ -129,7 +129,7 @@ class AppState: ObservableObject {
         return false
 //        let storedUrls = dirs.map { $0.url }
 //        for storedURL in storedUrls {
-//            // 确保 storedURL 是一个目录，并且传入的 URL 以 storedURL 的路径为前缀
+//            // Ensure storedURL is a directory and the passed-in URL is prefixed by storedURL's path
 //            if url.path.hasPrefix(storedURL.path) {
 //                return true
 //            }
@@ -159,7 +159,7 @@ class AppState: ObservableObject {
         UserDefaults.group.set(permDirsData, forKey: Key.permDirs)
     }
 
-    //  保存常用文件夹
+    //  Save frequently used folders
     @MainActor
     func saveCommonDir() throws {
         let encoder = PropertyListEncoder()
@@ -190,21 +190,21 @@ class AppState: ObservableObject {
                         let folderURL = try URL(resolvingBookmarkData: dir.bookmark, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &isStale)
 
                         if isStale {
-                            // 重新创建 bookmarkData
-                            // createBookmark(for: folderURL) // 这里可以调用之前的函数
+                            // Re-create bookmarkData
+                            // createBookmark(for: folderURL) // the previous function can be called here
                         }
 
-                        // 进入安全范围
+                        // Enter the security scope
                         let success = folderURL.startAccessingSecurityScopedResource()
                         if success {
-                            // 完成后释放资源
+                            // Release the resource when done
                             logger.info("startAccessingSecurityScopedResource success")
 //                            folderURL.stopAccessingSecurityScopedResource()
                         } else {
                             logger.warning("fail access scope \(dir.url.path)")
                         }
                     } catch {
-                        print("解析 bookmark 失败：\(error)")
+                        print("Failed to resolve bookmark: \(error)")
                     }
                 }
                  

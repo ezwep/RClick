@@ -2,7 +2,7 @@
 //  AdvancedSettingsView.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/4/4.
+//  Created by Li Xu on 2024/4/4.
 //
 
 import AppKit
@@ -27,7 +27,7 @@ struct AboutSettingsTabView: View {
             HStack {
                 Spacer()
                 Text("RClick").font(.title)
-                Text("\(getAppVersion())（\(getBuildVersion())）")
+                Text("\(getAppVersion()) (\(getBuildVersion()))")
                 Spacer()
             }
             HStack {
@@ -36,9 +36,9 @@ struct AboutSettingsTabView: View {
                 Spacer()
             }
             Spacer()
-            // 添加一个按钮，点击后检查更新
+            // Add a button that checks for updates when tapped
             VStack {
-                // 检查更新按钮
+                // Check for updates button
                 Button(action: {
                     Task {
                         await updateManager.checkForUpdates(force: true)
@@ -48,7 +48,7 @@ struct AboutSettingsTabView: View {
                         ProgressView()
                             .scaleEffect(0.8)
                     } else {
-                        Text("检查更新")
+                        Text("Check for Updates")
                     }
                 }
             }

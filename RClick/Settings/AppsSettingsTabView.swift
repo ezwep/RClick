@@ -2,7 +2,7 @@
 //  AppsSettingsTabView.swift
 //  RClick
 //
-//  Created by 李旭 on 2024/11/18.
+//  Created by Li Xu on 2024/11/18.
 //
 
 import AppKit
@@ -36,7 +36,7 @@ struct AppsSettingsTabView: View {
                 List {
                     ForEach(appState.apps) { item in
                         VStack {
-                            // App 基本信息行
+                            // App basic info row
                             HStack {
                                 Image(nsImage: NSWorkspace.shared.icon(forFile: item.url.path))
                                     .resizable()
@@ -45,7 +45,7 @@ struct AppsSettingsTabView: View {
                                 Text(item.name).font(.title2)
                                 Spacer()
                                 
-                                // 展开/收起按钮
+                                // Expand/collapse button
                                 Button {
                                     withAnimation {
                                         if expandedAppId == item.id {
@@ -58,7 +58,7 @@ struct AppsSettingsTabView: View {
                                     Image(systemName: expandedAppId == item.id ? "chevron.up" : "chevron.down")
                                 }
                                 
-                                // 编辑按钮
+                                // Edit button
                                 Button {
                                     editingApp = item
                                     editingItemName = item.itemName
@@ -68,7 +68,7 @@ struct AppsSettingsTabView: View {
                                     Image(systemName: "pencil")
                                 }
                                 
-                                // 删除按钮
+                                // Delete button
                                 Button {
                                     deleteApp(item)
                                 } label: {
@@ -77,7 +77,7 @@ struct AppsSettingsTabView: View {
                             }
                             .padding(.vertical, 4)
                             
-                            // 展开的属性信息
+                            // Expanded attribute info
                             if expandedAppId == item.id {
                                 VStack(alignment: .leading, spacing: 12) {
                                     if !item.arguments.isEmpty {
@@ -120,8 +120,8 @@ struct AppsSettingsTabView: View {
                                 .padding(.vertical, 8)
                                 
                                 .transition(.opacity)
-                                .frame(maxWidth: .infinity, alignment: .leading) // 添加这行使宽度填充整个可用空间
-                                .background(Color(NSColor.alternatingContentBackgroundColors[1])) // 使用系统交替背景色
+                                .frame(maxWidth: .infinity, alignment: .leading) // Add this line so the width fills the entire available space
+                                .background(Color(NSColor.alternatingContentBackgroundColors[1])) // Use the system alternating background color
                                 .cornerRadius(6)
                             }
                         }
@@ -143,7 +143,7 @@ struct AppsSettingsTabView: View {
                 }
             }
             
-            // 编辑浮层
+            // Edit overlay
             if editingApp != nil {
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
