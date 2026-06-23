@@ -4,16 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-RClick is a macOS desktop application that extends Finder's context menu with custom functionality. It's a menu bar application that adds various right-click actions to macOS Finder, built with Swift 6.2+ and SwiftUI.
+RClick is a macOS desktop application that extends Finder's context menu with custom functionality. It's a menu bar application that adds various right-click actions to macOS Finder, built with Swift and SwiftUI.
 
 **Key Technologies:**
-- Swift 6.2+ (required)
-- SwiftUI (all UI components)
-- AppKit (system integration only, no UI)
-- SwiftData (persistence)
+- Swift / SwiftUI (all UI components). Note: the project constitution (QWEN.md) mandates Swift 6.2 syntax, but the Xcode build settings currently pin `SWIFT_VERSION = 6.0` (main app) and `5.0` (some targets). Write Swift 6-compatible code; don't assume 6.2-only features compile.
+- AppKit (system integration only — `NSWorkspace`, `NSOpenPanel`, file ops — no UI)
+- SwiftData (persistence) + `UserDefaults` app group (config shared with the extension)
 - FinderSync framework (Finder extension)
 - DistributedNotificationCenter (inter-process communication)
-- Xcode 16+ (required for development)
+- macOS 15.0+ deployment target; Xcode 16+ required
+- SPM dependencies: `ZIPFoundation`, `swift-collections`
+
+**App group identifier:** `group.cn.wflixu.RClick` (`Constants.suitName` — note the typo `suitName`, kept intentionally; it's referenced across the codebase). Both processes share data through this group.
 
 ## Architecture
 
@@ -33,11 +35,13 @@ RClick follows a dual-process architecture:
 - Entry point: [FinderSyncExt.swift](FinderSyncExt/FinderSyncExt.swift)
 
 ### 3. Communication Layer
-The main app and extension communicate via `DistributedNotificationCenter`:
-- **Extension → App**: `RClick.MessageFromFinder` (actions, file operations)
-- **App → Extension**: `RClick.MessageFromApp` (menu updates, config changes)
-- Protocol defined in: [specs/001-macos-app-macos/contracts/app-extension-communication.md](specs/001-macos-app-macos/contracts/app-extension-communication.md)
-- Implementation: [Messager.swift](RClick/Shared/Messager.swift)
+The main app and extension communicate via `DistributedNotificationCenter`, wrapped by the `Messager` singleton ([Messager.swift](RClick/Shared/Messager.swift)). Every message is a JSON-encoded `MessagePayload { action, target, rid, trigger }`; the **`action` string is the real dispatch key**, not the notification name.
+
+Actual notification channels (see `Key` in [StringExtension.swift](RClick/Shared/StringExtension.swift) and the `messager.on(...)` / `messager.sendMessage(...)` call sites):
+- **Extension → App**: notification name `Key.messageFromFinder` (= `"RCLICK_FINDER_Main"`). Carries actions like `heartbeat`, `open`, `actioning`, `Create File`, `common-dirs`. Handled in [RClickApp.swift](RClick/RClickApp.swift) (`messager.on(name: Key.messageFromFinder)`, switch on `payload.action`).
+- **App → Extension**: ad-hoc notification names `"running"` (app launched, sent on startup) and `"quit"` (app terminating). The extension subscribes to these in [FinderSyncExt.swift](FinderSyncExt/FinderSyncExt.swift) to track `isHostAppOpen`.
+
+> Note: there is no `RClick.MessageFromApp` channel. The spec contract at [specs/001-macos-app-macos/contracts/app-extension-communication.md](specs/001-macos-app-macos/contracts/app-extension-communication.md) describes an idealized protocol that diverges from the shipped names above — trust the code.
 
 ### 4. State Management
 - **AppState**: Centralized `ObservableObject` managing all app state
@@ -73,14 +77,14 @@ xcodebuild -project RClick.xcodeproj -scheme RClick -configuration Release
 - The FinderSync extension will be automatically registered
 
 ### Testing
+There is **no test target** in `RClick.xcodeproj` yet (only `RClick` and `FinderSyncExt` schemes exist). The command below will only work once a test target is added:
 ```bash
-# Run tests (if test targets exist)
 xcodebuild test -project RClick.xcodeproj -scheme RClick -destination 'platform=macOS'
 ```
 
 ### Linting
+No `.swiftlint.yml` is committed. `swiftlint` will run with defaults only if installed globally:
 ```bash
-# Run SwiftLint (if configured)
 swiftlint
 ```
 

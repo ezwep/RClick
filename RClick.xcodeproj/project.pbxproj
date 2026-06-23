@@ -612,7 +612,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.7.2;
-				PRODUCT_BUNDLE_IDENTIFIER = cn.wflixu.RClick;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ezwep.RClick;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = devid_rclick;
@@ -673,7 +673,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.7.2;
-				PRODUCT_BUNDLE_IDENTIFIER = cn.wflixu.RClick;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ezwep.RClick;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = devid_rclick;
@@ -727,7 +727,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.7.2;
-				PRODUCT_BUNDLE_IDENTIFIER = cn.wflixu.RClick.FinderSyncExt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ezwep.RClick.FinderSyncExt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = devid_rclick_finderext;
@@ -778,7 +778,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.7.2;
-				PRODUCT_BUNDLE_IDENTIFIER = cn.wflixu.RClick.FinderSyncExt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ezwep.RClick.FinderSyncExt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = devid_rclick_finderext;
