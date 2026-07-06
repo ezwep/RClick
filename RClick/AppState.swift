@@ -183,31 +183,37 @@ class AppState: ObservableObject {
             if let permDirsData = UserDefaults.group.data(forKey: Key.permDirs) {
                 dirs = try decoder.decode([PermissiveDir].self, from: permDirsData)
                 logger.info("load permDir success")
-                
-                for dir in dirs {
-                    var isStale = false
-                    do {
-                        let folderURL = try URL(resolvingBookmarkData: dir.bookmark, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &isStale)
 
-                        if isStale {
-                            // Re-create bookmarkData
-                            // createBookmark(for: folderURL) // the previous function can be called here
-                        }
+                var bookmarksRefreshed = false
+                for index in dirs.indices {
+                    var isStale = false
+                    let dirPath = dirs[index].url.path
+                    do {
+                        let folderURL = try URL(resolvingBookmarkData: dirs[index].bookmark, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &isStale)
 
                         // Enter the security scope
                         let success = folderURL.startAccessingSecurityScopedResource()
                         if success {
-                            // Release the resource when done
                             logger.info("startAccessingSecurityScopedResource success")
-//                            folderURL.stopAccessingSecurityScopedResource()
+                            // Refresh a stale bookmark so folder access survives
+                            // future launches and reboots (macOS invalidates
+                            // security-scoped bookmarks over time).
+                            if isStale, let fresh = try? folderURL.bookmarkData(options: .withSecurityScope) {
+                                dirs[index].bookmark = fresh
+                                bookmarksRefreshed = true
+                                logger.info("refreshed stale bookmark for \(dirPath)")
+                            }
                         } else {
-                            logger.warning("fail access scope \(dir.url.path)")
+                            logger.warning("fail access scope \(dirPath)")
                         }
                     } catch {
-                        print("Failed to resolve bookmark: \(error)")
+                        logger.error("Failed to resolve bookmark: \(error.localizedDescription)")
                     }
                 }
-                 
+                if bookmarksRefreshed {
+                    try? savePermissiveDir()
+                }
+
             } else {
                 logger.warning("load permission dirfailed")
                

@@ -49,7 +49,11 @@ class FinderSyncExt: FIFinderSync {
             self.isHostAppOpen = true
 
             if payload.target.count > 0 {
-                FIFinderSyncController.default().directoryURLs = Set(payload.target.map { URL(fileURLWithPath: $0) })
+                // Decode any percent-encoding defensively so paths with spaces
+                // resolve to the real directory instead of a literal "%20" path.
+                FIFinderSyncController.default().directoryURLs = Set(payload.target.map {
+                    URL(fileURLWithPath: $0.removingPercentEncoding ?? $0)
+                })
             }
             Task {
                 self.appState.refresh()

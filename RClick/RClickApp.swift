@@ -110,7 +110,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func sendObserveDirMessage() {
-        let target: [String] = appState.dirs.map { $0.url.path() }
+        // Send the decoded filesystem path (not percent-encoded) so the
+        // extension's URL(fileURLWithPath:) reconstructs the real directory.
+        // Paths with spaces (e.g. "Claude Code") would otherwise become
+        // "Claude%20Code" and match no real folder, leaving the menu empty.
+        let target: [String] = appState.dirs.map { $0.url.path(percentEncoded: false) }
 
         messager.sendMessage(name: "running", data: MessagePayload(action: "running", target: target))
         if !pluginRunning {
